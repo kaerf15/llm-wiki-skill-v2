@@ -20,6 +20,18 @@
 
 `plugins/obsidian-audit/` 和 `web/` 共用 `audit-shared/`，所以两边写出来的审计文件格式一致。
 
+## 极简部署流程
+
+面向普通用户，推荐这样用：
+
+1. 安装前置依赖：Python 3、Node.js 20+、Git、Obsidian。
+2. 打开 Obsidian，新建一个 vault，作为你的知识库。
+3. 打开 Cursor，选择 `Open Folder`，打开刚才创建的 Obsidian vault。
+4. 把下面“一键部署提示词”直接发给 Cursor。
+5. Cursor 会自动下载本项目、初始化当前 vault、安装 Web viewer、配置开机自启动、链接 Obsidian 插件。
+
+用户不需要手动下载本仓库，也不需要知道 `web/` 应该放在哪里。
+
 ## 推荐安装位置
 
 工具代码不要放进 Obsidian 知识库里。
@@ -43,6 +55,7 @@ Windows: %LOCALAPPDATA%\llm-wiki\
 
 - Python 3：用于 `scaffold.py`、`lint_wiki.py`、`audit_review.py`、`import_source.py`
 - Node.js 20+：用于 `web/` 和 Obsidian 插件构建；Node.js 会自带 `npm`
+- Git：用于从 GitHub 下载本项目
 - Obsidian：用于打开和浏览 vault
 - MarkItDown：可选，仅在导入 PDF、Office、HTML 等非 Markdown 文件时需要
 
@@ -52,6 +65,7 @@ Windows: %LOCALAPPDATA%\llm-wiki\
 python3 --version
 node -v
 npm -v
+git --version
 ```
 
 Windows 用户如果没有 `python3` 命令，可尝试：
@@ -62,57 +76,71 @@ py -3 --version
 
 ## 一键交给 Cursor 的部署提示词
 
-把下面提示词复制给 Cursor。只需要先改两处：
-
-- `<THIS_REPO>`：本项目所在目录，例如 `/Users/lym/Desktop/lym-harness/llm-wiki-skill`
-- `<WIKI_ROOT>`：你的 Obsidian vault 或准备作为 wiki 的目录
+先用 Cursor 打开你的 Obsidian vault 文件夹，然后把下面整段提示词直接复制给 Cursor。
 
 ```text
-请在当前电脑上为我部署 llm-wiki。请严格按下面要求执行，过程中不要把 web/、audit-shared/、plugins/ 复制到我的 Obsidian 知识库里。
+请在当前 Cursor workspace（也就是我当前打开的 Obsidian vault）里部署 llm-wiki。
 
-参数：
-- 项目目录：<THIS_REPO>
-- Wiki 根目录 / Obsidian vault：<WIKI_ROOT>
+请严格按下面要求执行：
+- 当前 workspace 就是 Wiki 根目录 / Obsidian vault。
+- 不要把 web/、audit-shared/、plugins/ 复制到我的 Obsidian vault 里。
+- 请从 GitHub 下载项目：https://github.com/kaerf15/llm-wiki-skill
+- 工具代码放到用户级应用目录：
+  - macOS：~/Library/Application Support/llm-wiki/llm-wiki-skill
+  - Windows：%LOCALAPPDATA%\llm-wiki\llm-wiki-skill
 - Web 端口：4875
 - 作者：lym
+
+参数：
+- REPO_URL=https://github.com/kaerf15/llm-wiki-skill
+- WIKI_ROOT=当前 Cursor workspace 根目录
+- PORT=4875
+- AUTHOR=lym
 
 目标：
 1. 先检查前置依赖：
    - 运行 `python3 --version`；如果 Windows 没有 `python3`，尝试 `py -3 --version`。
    - 运行 `node -v`，确认 Node.js 版本是 20 或更高。
    - 运行 `npm -v`，确认 npm 可用。
-   - 如果 Python 3 或 Node.js 20+ 不存在，请停止部署，并告诉我需要先安装 Python 3 和 Node.js 20+。
-2. 确认项目目录存在，并进入该目录。
-3. 如果 Wiki 根目录还不是 llm-wiki 结构，请运行：
-   python3 llm-wiki/scripts/scaffold.py "<WIKI_ROOT>" "My Knowledge Base"
+   - 运行 `git --version`，确认 Git 可用。
+   - 如果 Python 3、Node.js 20+、npm 或 Git 不存在，请停止部署，并告诉我需要先安装什么。
+2. 确认当前 Cursor workspace 是一个真实目录。把这个目录作为 WIKI_ROOT。
+3. 根据操作系统确定工具安装目录：
+   - macOS：~/Library/Application Support/llm-wiki/llm-wiki-skill
+   - Windows：%LOCALAPPDATA%\llm-wiki\llm-wiki-skill
+4. 如果工具目录不存在，请从 REPO_URL clone 到工具目录；如果已经存在，请进入工具目录并拉取最新代码。
+5. 如果 WIKI_ROOT 还不是 llm-wiki 结构，请运行：
+   python3 <工具目录>/llm-wiki/scripts/scaffold.py "<WIKI_ROOT>" "My Knowledge Base"
    生成 AGENTS.md、CLAUDE.md、raw/、wiki/、audit/、log/、outputs/。
-4. 构建共享库：
+6. 构建共享库：
+   cd <工具目录>
    cd audit-shared
    npm install
    npm run build
    cd ..
-5. 构建 Web viewer：
+7. 构建 Web viewer 并安装开机自启动：
    cd web
    npm install
    npm run build
    npm run autostart:install -- --wiki "<WIKI_ROOT>" --port 4875 --author "lym"
    cd ..
-6. 构建并链接 Obsidian 插件：
+8. 构建并链接 Obsidian 插件：
    cd plugins/obsidian-audit
    npm install
    npm run build
    npm run link -- "<WIKI_ROOT>"
    cd ../..
-7. 可选安装 MarkItDown：
+9. 可选安装 MarkItDown：
    pip install 'markitdown[all]'
-8. 验证：
+10. 验证：
    - 检查 http://127.0.0.1:4875 是否可访问。
    - 检查 "<WIKI_ROOT>/AGENTS.md" 存在。
    - 检查 "<WIKI_ROOT>/CLAUDE.md" 内容是 @AGENTS.md。
    - 检查 "<WIKI_ROOT>/audit" 存在。
    - 在 Obsidian 中提示我启用 Community Plugins 里的 "LLM Wiki Audit"。
-9. 最后告诉我：
+11. 最后告诉我：
    - Web viewer 地址
+   - 工具代码安装目录
    - 自启动是否安装成功
    - Obsidian 插件目录位置
    - 如果有失败，给出失败命令和下一步修复建议。
@@ -282,7 +310,8 @@ llm-wiki-skill/
 
 ## 作者
 
-lym <973007435@qq.com>  
+lym [973007435@qq.com](mailto:973007435@qq.com)
+
 GitHub: [kaerf15](https://github.com/kaerf15)
 
 ## License
