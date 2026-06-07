@@ -87,7 +87,7 @@ Every operation appends an entry to `log/YYYYMMDD.md`.
 ## Naming conventions
 
 - **Concept pages** (`wiki/concepts/`): Title Case noun phrases.
-- **Folder-split concepts** (`wiki/concepts/<topic>/`): used when a topic exceeds ~1200 words. Contains `index.md` + one file per aspect.
+- **Split concepts**: hub at `wiki/concepts/<Topic>.md`; optional `wiki/concepts/<Topic>/<aspect>.md` (one folder level). Only `wiki/index.md` may be named `index.md`.
 - **Entity pages** (`wiki/entities/`): Proper names.
 - **Summary pages** (`wiki/summaries/`): kebab-case source slug.
 

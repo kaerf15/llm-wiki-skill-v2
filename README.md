@@ -161,7 +161,7 @@ python3 llm-wiki/scripts/audit_review.py ~/my-wiki --open
 Wiki 内容使用标准 Markdown 链接：
 
 ```markdown
-[Transformers](wiki/concepts/Transformers/index.md)
+[Transformers](wiki/concepts/Transformers.md)
 [Andrej Karpathy](wiki/entities/Andrej%20Karpathy.md)
 ```
 

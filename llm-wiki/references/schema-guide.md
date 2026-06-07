@@ -6,7 +6,7 @@
 
 ### Pages
 - **Concept pages** (`wiki/concepts/`): Title Case noun phrases.
-- **Folder-split concepts**: `wiki/concepts/<topic>/index.md` + aspect files.
+- **Split concepts**: hub at `wiki/concepts/<Topic>.md`; optional `wiki/concepts/<Topic>/<aspect>.md`. No subfolder `index.md`.
 - **Entity pages** (`wiki/entities/`): Proper names.
 - **Summary pages** (`wiki/summaries/`): kebab-case source slug.
 
@@ -15,7 +15,7 @@ Use standard Markdown links with paths relative to the wiki root:
 
 ```markdown
 [Market Making Strategy](wiki/concepts/Market%20Making%20Strategy.md)
-[Foo](wiki/concepts/Foo/index.md)
+[Foo](wiki/concepts/Foo.md)
 [summaries/karpathy-gist](wiki/summaries/karpathy-gist.md)
 ```
 
@@ -35,7 +35,7 @@ Every wiki page has YAML frontmatter: `title`, `type`, `created`, `updated`, `so
 
 ```markdown
 ### Concepts
-- [Transformers](wiki/concepts/Transformers/index.md) — overview
+- [Transformers](wiki/concepts/Transformers.md) — overview
     - [attention](wiki/concepts/Transformers/attention.md) — mechanism
 
 ### Entities

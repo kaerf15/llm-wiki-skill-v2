@@ -195,9 +195,7 @@ export function renderGraph(
     .attr("text-anchor", "middle")
     .text((d) => d.label);
 
-  nodeInner
-    .append("title")
-    .text((d) => (d.title && d.title !== d.label ? `${d.label} — ${d.title}` : d.label));
+  nodeInner.append("title").text((d) => d.label);
 
   // ── Drag ────────────────────────────────────────────────────────────────
   const dragBehavior = d3drag

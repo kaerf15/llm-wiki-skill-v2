@@ -39,14 +39,14 @@ export function buildGraph(wikiRoot: string): GraphData {
   for (const f of files) {
     const relFromWiki = path.relative(wikiDir, f).split(path.sep).join("/");
     const id = `wiki/${relFromWiki}`;
-    const label = graphNodeLabel(relFromWiki);
     const parts = relFromWiki.split("/");
     const group = parts.length > 1 ? parts[0]! : "other";
-    const title = extractTitle(fs.readFileSync(f, "utf-8")) ?? label;
+    const stem = path.basename(f, ".md");
+    const title = extractTitle(fs.readFileSync(f, "utf-8")) ?? stem;
 
     nodes.set(id, {
       id,
-      label,
+      label: title,
       path: id,
       group,
       degree: 0,
@@ -82,15 +82,6 @@ export function buildGraph(wikiRoot: string): GraphData {
     nodes: Array.from(nodes.values()),
     edges,
   };
-}
-
-function graphNodeLabel(relFromWiki: string): string {
-  const parts = relFromWiki.split("/");
-  const filename = parts.at(-1) ?? relFromWiki;
-  const stem = filename.replace(/\.md$/, "");
-  if (stem !== "index") return stem;
-  const folderName = parts.length > 1 ? parts.at(-2)! : "wiki";
-  return `index-${folderName}`;
 }
 
 export function handleGraph(registry: WikiRegistry) {

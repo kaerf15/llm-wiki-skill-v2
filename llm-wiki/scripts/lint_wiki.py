@@ -12,10 +12,11 @@ Checks:
   1. Dead links — [text](path.md) where the target doesn't exist
   2. Orphan pages — wiki pages with no inbound links
   3. Missing index entries — wiki pages not listed in wiki/index.md
-  4. Frequently-linked missing pages — linked 3+ times but no page
-  5. log/ shape — every file matches YYYYMMDD.md and has the right H1
-  6. audit/ shape — every audit/*.md parses as a valid AuditEntry
-  7. Audit targets — every open audit's `target` file must exist
+  4. Nested index.md — only wiki/index.md is allowed
+  5. Frequently-linked missing pages — linked 3+ times but no page
+  6. log/ shape — every file matches YYYYMMDD.md and has the right H1
+  7. audit/ shape — every audit/*.md parses as a valid AuditEntry
+  8. Audit targets — every open audit's `target` file must exist
 
 Exit codes:
   0 — no issues found
@@ -221,7 +222,17 @@ def lint(root: str) -> int:
     else:
         print("⚠️  wiki/index.md not found — skipping index check")
 
-    # ── Pass 4: frequently linked but missing ─────────────────────────────
+    # ── Pass 4: nested index.md (only wiki/index.md allowed) ────────────
+    nested_indexes = [p for p in all_wiki_files if p.name == "index.md" and p != index_path]
+    if nested_indexes:
+        print(f"\n🔴 Nested index.md files ({len(nested_indexes)}) — only wiki/index.md is allowed:")
+        for p in nested_indexes:
+            print(f"   {p.relative_to(root_path)}")
+        issues += len(nested_indexes)
+    else:
+        print("✅ No nested index.md files")
+
+    # ── Pass 5: frequently linked but missing ─────────────────────────────
     link_counts: dict[str, int] = defaultdict(int)
     for md_file in root_path.rglob("*.md"):
         rel_from_root = md_file.relative_to(root_path).as_posix()
@@ -243,7 +254,7 @@ def lint(root: str) -> int:
     else:
         print("✅ No frequently-linked missing pages")
 
-    # ── Pass 5: log/ shape ───────────────────────────────────────────────
+    # ── Pass 6: log/ shape ───────────────────────────────────────────────
     if log_path.exists() and log_path.is_dir():
         log_issues: list[str] = []
         for p in sorted(log_path.iterdir()):
@@ -268,7 +279,7 @@ def lint(root: str) -> int:
     else:
         print("⚠️  log/ directory not found — skipping log shape check")
 
-    # ── Pass 6: audit/ shape ─────────────────────────────────────────────
+    # ── Pass 7: audit/ shape ─────────────────────────────────────────────
     audit_targets_to_check: list[tuple[str, str]] = []
     if audit_path.exists() and audit_path.is_dir():
         audit_files = [p for p in audit_path.rglob("*.md") if p.name != ".gitkeep"]
@@ -310,7 +321,7 @@ def lint(root: str) -> int:
     else:
         print("⚠️  audit/ directory not found — skipping audit shape check")
 
-    # ── Pass 7: audit targets exist ──────────────────────────────────────
+    # ── Pass 8: audit targets exist ──────────────────────────────────────
     missing_targets: list[tuple[str, str]] = []
     for audit_id, target in audit_targets_to_check:
         target_path = root_path / target

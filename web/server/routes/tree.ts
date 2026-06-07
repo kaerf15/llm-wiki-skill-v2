@@ -2,6 +2,7 @@ import fs from "node:fs";
 import path from "node:path";
 import type { Request, Response } from "express";
 import type { WikiRegistry } from "../config.js";
+import { extractTitle } from "../links.js";
 import { wikiOr400 } from "./helpers.js";
 
 export interface TreeNode {
@@ -39,7 +40,10 @@ function walk(wikiRoot: string, dir: string, rel: string): TreeNode {
     if (e.isDirectory()) {
       children.push(walk(wikiRoot, full, nodeRel));
     } else if (e.name.endsWith(".md")) {
-      children.push({ name: e.name.replace(/\.md$/, ""), path: nodeRel, kind: "file" });
+      const text = fs.readFileSync(full, "utf-8");
+      const stem = e.name.replace(/\.md$/, "");
+      const title = extractTitle(text) ?? stem;
+      children.push({ name: title, path: nodeRel, kind: "file" });
     }
   }
 

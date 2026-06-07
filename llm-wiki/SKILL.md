@@ -48,14 +48,17 @@ The wiki is a living artifact with **five operations** — `compile`, `ingest`, 
 
 Four rules govern everything below. If a future instruction contradicts one, flag it to the user before acting.
 
-### 1. Divide and conquer
+### 1. Divide and conquer — flat structure
 
 A single concept page should **never** try to cover a complex topic end-to-end. Target: **400–1200 words per page**. When a topic would blow past that:
 
-- Create a subfolder: `wiki/concepts/<topic>/`
-- Put a short index page at `wiki/concepts/<topic>/index.md`
-- Put each aspect in its own file: `wiki/concepts/<topic>/<aspect>.md`
-- In `wiki/index.md`, show the hierarchy via indented bullets
+- Prefer a **named hub file**: `wiki/concepts/<Topic>.md` with `title:` matching the concept name.
+- Only if needed, add a **shallow** aspect folder: `wiki/concepts/<Topic>/<aspect>.md` (one extra level max).
+- **Never** create `index.md` under subfolders — the **only** `index.md` is `wiki/index.md`.
+- Keep paths shallow: `wiki/<category>/<file>.md` or `wiki/<category>/<topic>/<aspect>.md`. No deeper nesting.
+- In `wiki/index.md`, list pages with indented bullets when a topic has aspect files.
+
+On `compile`, flatten legacy layouts: rename `wiki/.../index.md` → `wiki/.../<Topic>.md` or `overview.md`, merge duplicates, and update links.
 
 ### 2. Mermaid for diagrams, KaTeX for formulas
 
@@ -92,14 +95,16 @@ See `references/audit-guide.md` for the full format.
 Use standard Markdown links with paths relative to the wiki root:
 
 ```markdown
-[Transformers](wiki/concepts/Transformers/index.md)
+[Transformers](wiki/concepts/Transformers.md)
+[Brand Reconnaissance](wiki/concepts/Brand%20Reconnaissance.md)
 [Andrej Karpathy](wiki/entities/Andrej%20Karpathy.md)
 [source summary](wiki/summaries/karpathy-llm-wiki-gist.md)
 [external ref](raw/refs/large-dataset.md)
 ```
 
 Rules:
-- Always use `wiki/...` paths for wiki pages (include `.md`).
+- Always use `wiki/...` paths for wiki pages (include `.md`). Do **not** link to subfolder `index.md`.
+- Every page must have `title:` in frontmatter; the web graph and navigation use it as the display name.
 - URL-encode spaces in paths (`%20`).
 - Same-page sections: `[Section title](#section-heading)`.
 - Link the first mention of every entity or concept; at most twice per article.
@@ -116,7 +121,7 @@ Every action on the wiki is one of these five. Each appends an entry to `log/YYY
 
 (Re)structure wiki content from existing `raw/` material.
 
-**Steps**: read schema + index → split oversized pages → merge duplicates → rebuild `index.md` → log.
+**Steps**: read schema + index → split oversized pages → flatten nested `index.md` → merge duplicates → rebuild `wiki/index.md` → log.
 
 ### 2. `ingest`
 
@@ -174,7 +179,7 @@ Install skill to `<wiki-root>/.agents/skills/llm-wiki/` (see project README for 
 
 ## Concepts
 - [Foo](wiki/concepts/Foo.md) — one-line summary
-- [Bar](wiki/concepts/Bar/index.md) — (folder-split) one-line summary
+- [Bar](wiki/concepts/Bar.md) — hub page
     - [aspect-1](wiki/concepts/Bar/aspect-1.md) — ...
 
 ## Entities
