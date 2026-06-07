@@ -83,7 +83,8 @@ py -3 --version
 
 请严格按下面要求执行：
 - 当前 workspace 就是 Wiki 根目录 / Obsidian vault。
-- 不要把 web/、audit-shared/、plugins/ 复制到我的 Obsidian vault 里。
+- 不要把 web/、audit-shared/、plugins/ 这些服务/构建目录复制到我的 Obsidian vault 里。
+- 需要把 `llm-wiki/` 这个 skill 安装到当前 vault：`<WIKI_ROOT>/.cursor/skills/llm-wiki/`。
 - 请从 GitHub 下载项目：https://github.com/kaerf15/llm-wiki-skill
 - 工具代码放到用户级应用目录：
   - macOS：~/Library/Application Support/llm-wiki/llm-wiki-skill
@@ -112,35 +113,41 @@ py -3 --version
 5. 如果 WIKI_ROOT 还不是 llm-wiki 结构，请运行：
    python3 <工具目录>/llm-wiki/scripts/scaffold.py "<WIKI_ROOT>" "My Knowledge Base"
    生成 AGENTS.md、CLAUDE.md、raw/、wiki/、audit/、log/、outputs/。
-6. 构建共享库：
+6. 安装项目内 skill 到当前 vault：
+   - 创建目录："<WIKI_ROOT>/.cursor/skills"
+   - 将 "<工具目录>/llm-wiki" 复制到 "<WIKI_ROOT>/.cursor/skills/llm-wiki"
+   - 如果目标目录已存在，先删除旧的 "<WIKI_ROOT>/.cursor/skills/llm-wiki"，再复制最新版。
+7. 构建共享库：
    cd <工具目录>
    cd audit-shared
    npm install
    npm run build
    cd ..
-7. 构建 Web viewer 并安装开机自启动：
+8. 构建 Web viewer 并安装开机自启动：
    cd web
    npm install
    npm run build
    npm run autostart:install -- --wiki "<WIKI_ROOT>" --port 4875 --author "lym"
    cd ..
-8. 构建并链接 Obsidian 插件：
+9. 构建并链接 Obsidian 插件：
    cd plugins/obsidian-audit
    npm install
    npm run build
    npm run link -- "<WIKI_ROOT>"
    cd ../..
-9. 可选安装 MarkItDown：
+10. 可选安装 MarkItDown：
    pip install 'markitdown[all]'
-10. 验证：
+11. 验证：
    - 检查 http://127.0.0.1:4875 是否可访问。
    - 检查 "<WIKI_ROOT>/AGENTS.md" 存在。
    - 检查 "<WIKI_ROOT>/CLAUDE.md" 内容是 @AGENTS.md。
    - 检查 "<WIKI_ROOT>/audit" 存在。
+   - 检查 "<WIKI_ROOT>/.cursor/skills/llm-wiki/SKILL.md" 存在。
    - 在 Obsidian 中提示我启用 Community Plugins 里的 "LLM Wiki Audit"。
-11. 最后告诉我：
+12. 最后告诉我：
    - Web viewer 地址
    - 工具代码安装目录
+   - Skill 安装目录
    - 自启动是否安装成功
    - Obsidian 插件目录位置
    - 如果有失败，给出失败命令和下一步修复建议。
